@@ -30,22 +30,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 
 const selectedImage = ref(null);
-const images = ref([]);
-
-onMounted(async () => {
-  const res = await fetch("/api/horror-images");
-  images.value = await res.json();
-});
+const images = ref([
+  "/media/images/001.png",
+  "/media/images/002.png",
+  "/media/images/003.png",
+  "/media/images/004.png",
+  "/media/images/005.png",
+]);
 </script>
 
 <style scoped>
 /* 背景を自然に馴染ませてスクロール対応 */
 .alt-background {
   background-image: url('/images/horror-upload-bg.jpg');
-  background-size: cover;               /* ← 拡大ではなくフィット */
+  background-size: cover;
   background-position: center;
   background-attachment: fixed;
   min-height: 100vh;
@@ -60,7 +61,7 @@ onMounted(async () => {
   position: relative;
   z-index: 10;
   text-align: center;
-  background-color: rgba(0, 0, 0, 0.5); /* 半透明レイヤーで読みやすく */
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .image-grid {
@@ -102,7 +103,6 @@ onMounted(async () => {
   text-decoration: underline;
 }
 
-/* モーダル */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -137,15 +137,5 @@ onMounted(async () => {
     transform: scale(1);
     opacity: 1;
   }
-}
-.horror-page {
-  background-color: rgba(0, 0, 0, 0.6);  /* ← ここがポイント！ */
-  padding: 40px;
-  min-height: 100vh;
-  color: white;
-  position: relative;
-  z-index: 10;
-  text-align: center;
-  font-family: 'Shippori Mincho B1', serif;
 }
 </style>

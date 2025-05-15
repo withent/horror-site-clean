@@ -1,18 +1,12 @@
-import { readdir } from 'fs/promises'
+import { readdirSync } from 'fs'
 import { join } from 'path'
 
-export default defineEventHandler(async () => {
-  const videoDir = join(process.cwd(), 'public/video')
-  const files = await readdir(videoDir)
+export default defineEventHandler(() => {
+  const videoDir = join(process.cwd(), 'public', 'media', 'Video')
+  const files = readdirSync(videoDir).filter(f => f.endsWith('.mp4'))
 
-  const videos = files
-    .filter((f) => f.endsWith('.mp4'))
-    .map((file) => {
-      return {
-        path: `/video/${file}`,
-        title: file.replace('.mp4', '')
-      }
-    })
-
-  return videos
+  return files.map(filename => ({
+    title: filename.replace('.mp4', ''),
+    path: `/media/Video/${filename}`
+  }))
 })
