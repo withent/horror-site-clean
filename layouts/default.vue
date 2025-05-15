@@ -64,16 +64,9 @@ const isAltBackgroundPage = computed(() =>
 const isTopPage = computed(() => route.path === "/");
 
 const updateLightPosition = (event) => {
-  if (event.touches && event.touches.length > 0) {
-    // スマホやタブレットなどのタッチ操作
-    mouseX.value = event.touches[0].clientX
-    mouseY.value = event.touches[0].clientY
-  } else {
-    // PCのマウス操作
-    mouseX.value = event.clientX
-    mouseY.value = event.clientY
-  }
-}
+  mouseX.value = event.clientX;
+  mouseY.value = event.clientY;
+};
 
 const maskStyle = computed(() => ({
   WebkitMaskImage: `radial-gradient(circle 160px at ${mouseX.value}px ${mouseY.value}px, transparent 0%, black 100%)`,
@@ -156,7 +149,7 @@ body {
   width: 150vw;
   height: 150vh;
   pointer-events: none;
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: rgba(0, 0, 0, 0.6);
   z-index: 100;
   transition: background-color 0.3s ease;
 }

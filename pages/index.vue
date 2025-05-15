@@ -1,8 +1,11 @@
 <template>
   <div class="index-page">
-    <h1 class="title">ホラーコンテンツの館</h1>
+    <!-- マスクより上に表示されるタイトル -->
+    <div class="title-wrapper">
+      <h1 class="glow-title">ホラーコンテンツの館</h1>
+    </div>
     <p class="subtitle">
-      日本が誇る最高のコンテンツ…<br />
+      日本が誇る最高のエンターテインメント…<br />
       恐怖と狂気と興奮を、どうぞ体験してください
     </p>
 
@@ -60,30 +63,34 @@ const links = ref([
   {
     label: "YouTube動画",
     path: "/youtube",
-    caption: ['恐怖の動画コレクションを', '一挙公開…']
+    caption: ["恐怖の動画コレクションを", "一挙公開…"],
   },
   {
     label: "怖い体験談",
     path: "/stories",
-    caption: ['あなたの身に起きた', '本当にあった怖い話を投稿してね']
+    caption: ["あなたの身に起きた", "本当にあった怖い話を投稿してね"],
   },
   {
-    label: 'アップロード動画',
-    path: '/upload',
-    caption: ['ホラ子のオリジナル動画をアップしているよ',]
+    label: "アップロード動画",
+    path: "/upload",
+    caption: ["ホラ子のオリジナル動画をアップしているよ"],
   },
   {
-    label: 'ホラー画像登録',
-    path: '/horror-upload',
-    caption: ['ホラ子のオリジナル画像集', '選んでTシャツに出来るよ']
+    label: "ホラー画像登録",
+    path: "/horror-upload",
+    caption: ["ホラ子のオリジナル画像集", "選んでTシャツに出来るよ"],
   },
   {
-    label: 'Tシャツ販売',
-    path: '/shop',
-    caption: ['ホラ子のオリジナルTシャツ販売中', ]
+    label: "Tシャツ販売",
+    path: "/shop",
+    caption: ["ホラ子のオリジナルTシャツ販売中"],
   },
-  { label: '利用規約', path: '/terms', caption: ['本サイトのご利用にあたって'] },
-])
+  {
+    label: "利用規約",
+    path: "/terms",
+    caption: ["本サイトのご利用にあたって"],
+  },
+]);
 
 const activateSplash = (event) => {
   const splash = event.currentTarget.querySelector(".blood-splash");
@@ -233,5 +240,18 @@ const deactivateSplash = (event) => {
 .blood-splash.active {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
+}
+.title-wrapper {
+  z-index: 1000; /* マスクより上に表示 */
+  pointer-events: none; /* クリック等はスルー */
+}
+.glow-title {
+  font-size: 2.8rem;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 0 5px #ff0000, 0 0 15px #ff3333, 0 0 50px #cc0000,
+    2px 2px 2px black;
+  font-family: "Shippori Mincho B1", serif;
 }
 </style>
