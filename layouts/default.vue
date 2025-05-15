@@ -1,5 +1,6 @@
 <template>
-  <div class="top-container" @mousemove="updateLightPosition">
+  <div class="top-container" @mousemove="updateLightPosition" @touchmove="updateLightPosition">
+
     <!-- 背景画像（特定ページでは非表示） -->
     <img
       v-if="!isAltBackgroundPage"
@@ -63,9 +64,16 @@ const isAltBackgroundPage = computed(() =>
 const isTopPage = computed(() => route.path === "/");
 
 const updateLightPosition = (event) => {
-  mouseX.value = event.clientX;
-  mouseY.value = event.clientY;
-};
+  if (event.touches && event.touches.length > 0) {
+    // スマホやタブレットなどのタッチ操作
+    mouseX.value = event.touches[0].clientX
+    mouseY.value = event.touches[0].clientY
+  } else {
+    // PCのマウス操作
+    mouseX.value = event.clientX
+    mouseY.value = event.clientY
+  }
+}
 
 const maskStyle = computed(() => ({
   WebkitMaskImage: `radial-gradient(circle 160px at ${mouseX.value}px ${mouseY.value}px, transparent 0%, black 100%)`,
