@@ -22,6 +22,24 @@
     <!-- ホラーBGM -->
     <audio ref="bgm" :src="bgmPath" type="audio/mpeg" autoplay loop></audio>
 
+    <!-- 🔇 ミュート切り替えボタン -->
+    <button
+      @click="toggleMute"
+      style="
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 8px 14px;
+        border: 1px solid white;
+        border-radius: 8px;
+        z-index: 9999;
+      "
+    >
+      {{ isMuted ? "🔇" : "🔊" }}
+    </button>
+
     <!-- スクロールボタン（トップ以外で表示） -->
     <div v-if="!isTopPage" class="scroll-buttons">
       <button class="scroll-btn" @click="scrollToTop">▲</button>
@@ -31,62 +49,69 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted } from "vue";
+import { useRoute } from "vue-router";
 
-const mouseX = ref(0)
-const mouseY = ref(0)
+const mouseX = ref(0);
+const mouseY = ref(0);
 
-const route = useRoute()
+const route = useRoute();
 
-// 特定ページ（背景を切り替えたいページ）のパスを判定
 const isAltBackgroundPage = computed(() =>
-  ['/horror-upload', '/upload'].includes(route.path)
-)
-
-const isTopPage = computed(() => route.path === '/')
+  ["/horror-upload", "/upload"].includes(route.path)
+);
+const isTopPage = computed(() => route.path === "/");
 
 const updateLightPosition = (event) => {
-  mouseX.value = event.clientX
-  mouseY.value = event.clientY
-}
+  mouseX.value = event.clientX;
+  mouseY.value = event.clientY;
+};
 
 const maskStyle = computed(() => ({
   WebkitMaskImage: `radial-gradient(circle 160px at ${mouseX.value}px ${mouseY.value}px, transparent 0%, black 100%)`,
-  maskImage: `radial-gradient(circle 160px at ${mouseX.value}px ${mouseY.value}px, transparent 0%, black 100%)`
-}))
+  maskImage: `radial-gradient(circle 160px at ${mouseX.value}px ${mouseY.value}px, transparent 0%, black 100%)`,
+}));
 
-const bgmPath = '/audio/horror-bgm.MP3'
-const bgm = ref(null)
+const bgmPath = "/audio/horror-bgm.MP3";
+const bgm = ref(null);
+const isMuted = ref(false);
+
+const toggleMute = () => {
+  isMuted.value = !isMuted.value;
+  if (bgm.value) {
+    bgm.value.muted = isMuted.value;
+  }
+};
 
 onMounted(() => {
+  if (bgm.value) {
+    bgm.value.muted = isMuted.value;
+  }
   bgm.value?.play().catch(() => {
     const handler = () => {
-      bgm.value?.play()
-      window.removeEventListener('click', handler)
-    }
-    window.addEventListener('click', handler)
-  })
-})
+      bgm.value?.play();
+      window.removeEventListener("click", handler);
+    };
+    window.addEventListener("click", handler);
+  });
+});
 
 function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
-
 function scrollToBottom() {
-  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+  window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
 }
 </script>
 
-
-
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1&display=swap");
 
-html, body {
+html,
+body {
   background-color: black;
   color: white;
-  font-family: 'Shippori Mincho B1', serif;
+  font-family: "Shippori Mincho B1", serif;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -99,7 +124,6 @@ html, body {
   overflow: hidden;
 }
 
-/* 背景画像 */
 .top-image {
   position: absolute;
   top: 0;
@@ -110,7 +134,6 @@ html, body {
   z-index: 0;
 }
 
-/* コンテンツレイヤー */
 .content-layer {
   position: relative;
   z-index: 10;
@@ -118,7 +141,6 @@ html, body {
   padding: 2rem;
 }
 
-/* 懐中電灯マスク */
 .flashlight-mask {
   position: fixed;
   top: 0;
@@ -126,12 +148,11 @@ html, body {
   width: 150vw;
   height: 150vh;
   pointer-events: none;
-  background-color: rgba(0, 0, 0, 0.85); /* 少し濃くして本物の暗さに */
+  background-color: rgba(0, 0, 0, 0.85);
   z-index: 100;
   transition: background-color 0.3s ease;
 }
 
-/* 蛍光灯チカチカ演出 */
 .flicker {
   position: fixed;
   top: 0;
@@ -147,25 +168,64 @@ html, body {
 }
 
 @keyframes flickerAnim {
-  0%, 5%, 10%, 14%, 18%, 22%, 100% { opacity: 0; }
-
-  2% { opacity: 0.1; }
-  6% { opacity: 0.15; }
-  11% { opacity: 0.8; }
-  15% { opacity: 0.05; }
-  19% { opacity: 0.2; }
-  23% { opacity: 0.1; }
-  50% { opacity: 0.4; }
-  51% { opacity: 0; }
-
-  70%, 72%, 74% { opacity: 1; }
-  75%, 76% { opacity: 0.5; }
-  77%, 78%, 79% { opacity: 0; }
-
-  90% { opacity: 0.3; }
-  93% { opacity: 1; }
-  96% { opacity: 0.4; }
+  0%,
+  5%,
+  10%,
+  14%,
+  18%,
+  22%,
+  100% {
+    opacity: 0;
+  }
+  2% {
+    opacity: 0.1;
+  }
+  6% {
+    opacity: 0.15;
+  }
+  11% {
+    opacity: 0.8;
+  }
+  15% {
+    opacity: 0.05;
+  }
+  19% {
+    opacity: 0.2;
+  }
+  23% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  51% {
+    opacity: 0;
+  }
+  70%,
+  72%,
+  74% {
+    opacity: 1;
+  }
+  75%,
+  76% {
+    opacity: 0.5;
+  }
+  77%,
+  78%,
+  79% {
+    opacity: 0;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  93% {
+    opacity: 1;
+  }
+  96% {
+    opacity: 0.4;
+  }
 }
+
 .scroll-buttons {
   position: fixed;
   bottom: 20px;
@@ -184,21 +244,54 @@ html, body {
   font-size: 18px;
   cursor: pointer;
   border-radius: 6px;
-  font-family: 'Shippori Mincho B1', serif;
+  font-family: "Shippori Mincho B1", serif;
   transition: transform 0.2s ease;
 }
 
 .scroll-btn:hover {
-  background: rgba(255, 0, 0, 0);
   transform: scale(1.1);
 }
-.page-background {
-  background-image: url('/images/Top.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  min-height: 100vh;
-  width: 100%;
-}
 
+.mute-btn {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 10px;
+  z-index: 9999; /* ← ここを上げる */
+  font-family: "Shippori Mincho B1", serif;
+  font-size: 14px;
+  border: 1px solid white;
+  cursor: pointer;
+}
+@media (max-width: 768px) {
+  .content-layer {
+    padding: 1rem;
+  }
+
+  .scroll-buttons {
+    bottom: 10px;
+    right: 10px;
+    gap: 5px;
+  }
+
+  .scroll-btn {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  button.fixed {
+    bottom: 10px;
+    right: 10px;
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  .flashlight-mask {
+    width: 200vw;
+    height: 200vh;
+  }
+}
 </style>
