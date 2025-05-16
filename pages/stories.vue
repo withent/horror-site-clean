@@ -4,19 +4,9 @@
 
     <!-- 投稿フォーム -->
     <form @submit.prevent="submitStory" class="form">
-      <input
-        v-model="nickname"
-        type="text"
-        placeholder="ニックネーム"
-        required
-      />
+      <input v-model="nickname" type="text" placeholder="ニックネーム" required />
       <input v-model="title" type="text" placeholder="タイトル" required />
-      <textarea
-        v-model="content"
-        placeholder="本文を入力..."
-        rows="4"
-        required
-      ></textarea>
+      <textarea v-model="content" placeholder="本文を入力..." rows="4" required></textarea>
       <button type="submit">投稿する</button>
     </form>
 
@@ -29,16 +19,14 @@
     <div v-if="stories.length" class="story-list">
       <div class="story" v-for="story in stories" :key="story.id">
         <h3>{{ story.title }}</h3>
-        <p>🧑 {{ story.nickname }} ｜📅 {{ story.timestamp }}</p>
+        <p>🧑 {{ story.nickname }} ｜📅 {{ formatDate(story.created_at) }}</p>
         <p>{{ story.content }}</p>
 
-        <!-- コメント欄 -->
+        <!-- コメント欄（保存なし）-->
         <div class="comments">
           <h4>💬 コメント</h4>
           <ul>
-            <li v-for="(comment, index) in story.comments" :key="index">
-              {{ comment }}
-            </li>
+            <li v-for="(comment, index) in story.comments" :key="index">{{ comment }}</li>
           </ul>
           <input
             v-model="story.newComment"
@@ -46,40 +34,108 @@
             placeholder="コメントを入力してEnter"
           />
         </div>
+
+        <!-- 削除ボタン -->
+        <button @click="deleteStory(story.id)" style="margin-top: 1rem; color: red;">
+          🗑 この投稿を削除
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
+import { ref, onMounted } from 'vue'
 
-const title = ref("");
-const content = ref("");
-const nickname = ref("");
-const stories = reactive([]);
+const stories = ref([])
+const title = ref('')
+const content = ref('')
+const nickname = ref('')
 
-function submitStory() {
-  stories.unshift({
-    id: Date.now(),
-    title: title.value,
-    content: content.value,
-    nickname: nickname.value,
-    timestamp: new Date().toLocaleString(),
-    comments: [],
-    newComment: "",
-  });
-  title.value = "";
-  content.value = "";
-  nickname.value = "";
-}
+// 投稿を取得する関数
+const loadStories = async () => {
+  const res = await fetch('/api/stories')
+  const { data, error } = await res.json()
 
-function addComment(story) {
-  if (story.newComment.trim()) {
-    story.comments.push(story.newComment.trim());
-    story.newComment = "";
+  console.log('🔥 Supabase API レスポンス:', data)
+
+  if (Array.isArray(data)) {
+    stories.value = data.map((story) => ({
+      id: story.id,
+      nickname: story.nickname ?? '名無し',
+      title: story.title,
+      content: story.content,
+      created_at: story.created_at,
+      comments: [],
+      newComment: ''
+    }))
+    console.log('🧪 stories.value:', stories.value)
+  } else {
+    console.warn('📛 投稿データの取得に失敗しました:', error ?? data)
+    stories.value = []
   }
 }
+
+
+
+// 投稿送信
+const submitStory = async () => {
+  console.log('🟢 送信データ確認:', {
+    nickname: nickname.value,
+    title: title.value,
+    content: content.value,
+  })
+
+  const res = await fetch('/api/stories', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      nickname: nickname.value,
+      title: title.value,
+      content: content.value,
+    }),
+  })
+
+  const json = await res.json()
+  console.log('📝 投稿APIレスポンス:', json)
+
+  nickname.value = ''
+  title.value = ''
+  content.value = ''
+  await loadStories()
+}
+
+
+
+// 削除
+const deleteStory = async (id) => {
+  await fetch(`/api/stories/${id}`, {
+    method: 'DELETE'
+  })
+  await loadStories()
+}
+
+// コメント追加（保存なしの仮機能）
+const addComment = (story) => {
+  if (story.newComment.trim()) {
+    story.comments.push(story.newComment.trim())
+    story.newComment = ''
+  }
+}
+
+// 日付整形
+const formatDate = (iso) => {
+  return new Date(iso).toLocaleString('ja-JP', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+// 初期ロード
+onMounted(loadStories)
 </script>
 
 <style scoped>
